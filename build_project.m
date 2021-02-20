@@ -1,3 +1,4 @@
+
 % PARAMETERS LIST
 
 parameters.d_ht = 10;
@@ -19,11 +20,11 @@ model = build_component_smooth(model);
 model = build_component_rough(model, parameters);
 model = set_studies(model);
 
-mphsave(model, strcat(pwd, '\build_project.mph'));
+mphsave(model, strcat(pwd, '\build_project_rectangle.mph'));
 
 % INITIALIZATION BLOCK
 
-function model = creat_model(parameters)
+function model = create_model(parameters)
 
     import com.comsol.model.*
     import com.comsol.model.util.*
@@ -531,7 +532,7 @@ function model = build_component_rough (model, parameters)
 
             model.component('rough').geom('geom_rough').feature.create('pol1', 'Polygon');
 
-                model.component('rough').geom('geom_rough').feature('pol1').set('table', roughness(parameters));
+                model.component('rough').geom('geom_rough').feature('pol1').set('table', roughness_rectangle(parameters));
                 model.component('rough').geom('geom_rough').feature('pol1').set('source', 'table');
                 
             model.component('rough').geom('geom_rough').create('int1', 'Intersection');
@@ -1154,29 +1155,54 @@ function model = set_studies (model)
 
 end
 
-function array = roughness (paramreters)
+function points = roughness_rectangle (parameters)
 
-        param_s_reters.s_r = 0.1;
+    parameters.s_r = 0.1;
 
-        n = fix(paramreters.l_ht / paramreters.s_r);
+    n = fix(parameters.l_ht / parameters.s_r);
 
-        index = [0:2:n - 2; 0:2:n - 2; ...
-                1:2:n - 1; 1:2:n - 1; 2:2:n]';
+    index = [0:2:n - 2; 0:2:n - 2; ...
+            1:2:n - 1; 1:2:n - 1; 2:2:n]';
 
-        array = [];
-        sz = size(index);
+    points = [];
+    sz = size(index);
 
-        for i = 1:sz(1)
+    for i = 1:sz(1)
+    
+            temp = ["d_ht / 2", strcat("l_in_st + s_r*", num2str(index(i, 1))); ...
+                    "d_ht / 2 - h_r", strcat("l_in_st + s_r*", num2str(index(i, 2))); ...
+                    "d_ht / 2 - h_r", strcat("l_in_st + s_r*", num2str(index(i, 3))); ...
+                    "d_ht / 2", strcat("l_in_st + s_r*", num2str(index(i, 4))); ...
+                    "d_ht / 2", strcat("l_in_st + s_r*", num2str(index(i, 5)))];
+            points = [points; temp];
+
+    end
+
+    points = [points; ["d_ht / 2", "l_in_st + l_ht"; "d_ht / 2", "l_in_st + 0"]]; 
+
+end
+
+function points = roughness_triangle (parameters)
+
+    parameters.s_r = 0.1;
+
+    n = fix(parameters.l_ht / parameters.s_r) + 1;
+
+    points = [];
+
+    index(:, 1) = repmat([0; 1], n, 1);
+    index = horzcat(index', 0)';
+    index(:, 2) = 0:0.5:n;
+
+    for i = 1:n
+
+        temp = [strcat("d_ht / 2 - h_r * ", num2str(index(i, 1))), ...
+            strcat("l_in_st + s_r * ", num2str(index(i, 2)))];
         
-                temp = ["d_ht / 2", strcat("l_in_st + s_r*", num2str(index(i, 1))); ...
-                        "d_ht / 2 - h_r", strcat("l_in_st + s_r*", num2str(index(i, 2))); ...
-                        "d_ht / 2 - h_r", strcat("l_in_st + s_r*", num2str(index(i, 3))); ...
-                        "d_ht / 2", strcat("l_in_st + s_r*", num2str(index(i, 4))); ...
-                        "d_ht / 2", strcat("l_in_st + s_r*", num2str(index(i, 5)))];
-                array = [array; temp];
+        points = [points; temp];
 
-        end
+    end
 
-        array = [array; ["d_ht / 2", "l_in_st + l_ht"; "d_ht / 2", "l_in_st + 0"]]; 
+    points = [points; ["d_ht / 2", "l_in_st + l_ht"; "d_ht / 2", "l_in_st + 0"]];
 
 end
