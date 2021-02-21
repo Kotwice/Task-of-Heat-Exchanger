@@ -20,7 +20,7 @@ model = build_component_smooth(model);
 model = build_component_rough(model, parameters);
 model = set_studies(model);
 
-mphsave(model, strcat(pwd, '\build_project_triangle.mph'));
+mphsave(model, strcat(pwd, '\build_project_rectangle.mph'));
 
 % INITIALIZATION BLOCK
 
@@ -383,7 +383,7 @@ function model = build_component_smooth (model)
                 model.component('smooth').physics('ht_smooth').create('ifl1', 'Inflow', 1);
 
                         model.component('smooth').physics('ht_smooth').feature('ifl1').selection.named('selection_inlet_s');
-                        model.component('smooth').physics('ht_smooth').feature('ifl1').set('Tustr', 'T_in');
+                        model.component('smooth').physics('ht_smooth').feature('ifl1').set('Tustr', 'T_0');
 
                 model.component('smooth').physics('ht_smooth').create('ofl1', 'ConvectiveOutflow', 1);
 
@@ -532,7 +532,7 @@ function model = build_component_rough (model, parameters)
 
             model.component('rough').geom('geom_rough').feature.create('pol1', 'Polygon');
 
-                model.component('rough').geom('geom_rough').feature('pol1').set('table', roughness_triangle(parameters));
+                model.component('rough').geom('geom_rough').feature('pol1').set('table', roughness_rectangle(parameters));
                 model.component('rough').geom('geom_rough').feature('pol1').set('source', 'table');
                 
             model.component('rough').geom('geom_rough').create('int1', 'Intersection');
@@ -940,7 +940,7 @@ function model = build_component_rough (model, parameters)
             model.component('rough').physics('ht_rough').create('ifl1', 'Inflow', 1);
 
                     model.component('rough').physics('ht_rough').feature('ifl1').selection.named('selection_inlet_r');
-                    model.component('rough').physics('ht_rough').feature('ifl1').set('Tustr', 'T_in');
+                    model.component('rough').physics('ht_rough').feature('ifl1').set('Tustr', 'T_0');
 
             model.component('rough').physics('ht_rough').create('ofl1', 'ConvectiveOutflow', 1);
 
